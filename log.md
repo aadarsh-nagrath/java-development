@@ -141,5 +141,3 @@ The JVM is a software-based engine that:
 
 ![{AC58F3D2-9090-47B8-99FA-DC2FB37B5336}](https://github.com/user-attachments/assets/5b8c186a-619f-40ba-8d78-205aaca98179)
 
-
-32 min - code, data types, wrappers, objects
