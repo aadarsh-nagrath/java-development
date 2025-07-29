@@ -1,0 +1,61 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: code-whisperer
+  
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: codewhisperer
+      auto-index-creation: false
+
+# CodeWhisperer specific configuration
+codewhisperer:
+  # OpenAI Configuration
+  openai:
+    api-key: ${OPENAI_API_KEY:}  # Set via environment variable
+    model: gpt-4
+    max-tokens: 2000
+  
+  # Voice processing configuration
+  voice:
+    provider: mock  # Options: mock, whisper, google-stt
+    timeout-seconds: 30
+  
+  # Project scanning configuration
+  project:
+    max-file-count: 100
+    scan-timeout-seconds: 60
+    excluded-dirs:
+      - target
+      - node_modules
+      - .git
+      - build
+      - dist
+  
+  # WebSocket configuration
+  websocket:
+    allowed-origins: "*"
+    heartbeat-interval: 30
+
+# Logging configuration
+logging:
+  level:
+    com.codewhisperer: INFO
+    org.springframework.web: INFO
+    org.springframework.data.mongodb: WARN  # Reduce MongoDB logging noise
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always 

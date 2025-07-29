@@ -1,0 +1,14 @@
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/config/AppConfig.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/model/ProjectContext.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/config/WebSocketConfig.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/service/CodeWhispererService.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/CodeWhispererApplication.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/controller/WebSocketController.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/service/VoiceToTextService.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/service/ProjectScannerService.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/controller/VoiceController.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/model/VoiceRequest.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/model/CodeResponse.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/service/ConversationHistoryService.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/model/ConversationHistory.java
+/Users/ragaai_user/java-development/java-projects/code-whisper/src/main/java/com/codewhisperer/service/LLMService.java
