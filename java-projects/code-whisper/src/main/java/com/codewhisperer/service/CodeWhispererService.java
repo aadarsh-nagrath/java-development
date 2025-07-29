@@ -22,10 +22,10 @@ public class CodeWhispererService {
     @Autowired
     private LLMService llmService;
 
-    @Autowired
+    @Autowired(required = false)
     private ConversationHistoryService conversationHistoryService;
 
-    @Autowired
+    @Autowired(required = false)
     private SimpMessagingTemplate messagingTemplate;
 
     public CompletableFuture<CodeResponse> processVoiceRequest(VoiceRequest request) {
@@ -36,7 +36,7 @@ public class CodeWhispererService {
         // Step 1: Convert voice to text
         return voiceToTextService.convertVoiceToText(request.getAudioData(), sessionId)
                 .thenCompose(voiceText -> {
-                    // Send real-time update
+                    // Send real-time update if WebSocket is available
                     sendWebSocketUpdate(sessionId, "Converting voice to text...", "PROCESSING");
                     
                     log.info("Voice converted to text: {}", voiceText);
@@ -48,7 +48,7 @@ public class CodeWhispererService {
                     // Step 3: Generate code using LLM
                     return llmService.generateCode(voiceText, projectContext, sessionId)
                             .thenApply(codeResponse -> {
-                                // Step 4: Save conversation history
+                                // Step 4: Save conversation history (optional)
                                 saveConversationHistory(sessionId, request.getProjectPath(), voiceText, codeResponse);
                                 
                                 // Step 5: Send final result
@@ -73,31 +73,37 @@ public class CodeWhispererService {
     }
 
     private void sendWebSocketUpdate(String sessionId, String message, String status) {
-        try {
-            WebSocketUpdate update = WebSocketUpdate.builder()
-                    .sessionId(sessionId)
-                    .message(message)
-                    .status(status)
-                    .timestamp(System.currentTimeMillis())
-                    .build();
-            
-            messagingTemplate.convertAndSend("/topic/session/" + sessionId, update);
-        } catch (Exception e) {
-            log.warn("Failed to send WebSocket update for session: {}", sessionId, e);
+        if (messagingTemplate != null) {
+            try {
+                WebSocketUpdate update = WebSocketUpdate.builder()
+                        .sessionId(sessionId)
+                        .message(message)
+                        .status(status)
+                        .timestamp(System.currentTimeMillis())
+                        .build();
+                
+                messagingTemplate.convertAndSend("/topic/session/" + sessionId, update);
+            } catch (Exception e) {
+                log.warn("Failed to send WebSocket update for session: {}", sessionId, e);
+            }
         }
     }
 
     private void saveConversationHistory(String sessionId, String projectPath, String voiceInput, CodeResponse codeResponse) {
-        try {
-            // Check if conversation exists, if not create it
-            if (!conversationHistoryService.getConversationBySessionId(sessionId).isPresent()) {
-                conversationHistoryService.saveConversation(sessionId, projectPath, "default-user");
+        if (conversationHistoryService != null) {
+            try {
+                // Check if conversation exists, if not create it
+                if (!conversationHistoryService.getConversationBySessionId(sessionId).isPresent()) {
+                    conversationHistoryService.saveConversation(sessionId, projectPath, "default-user");
+                }
+                
+                // Add the conversation entry
+                conversationHistoryService.addConversationEntry(sessionId, voiceInput, codeResponse);
+            } catch (Exception e) {
+                log.warn("Failed to save conversation history for session: {}", sessionId, e);
             }
-            
-            // Add the conversation entry
-            conversationHistoryService.addConversationEntry(sessionId, voiceInput, codeResponse);
-        } catch (Exception e) {
-            log.warn("Failed to save conversation history for session: {}", sessionId, e);
+        } else {
+            log.info("Conversation history service not available, skipping history save for session: {}", sessionId);
         }
     }
 
@@ -106,8 +112,11 @@ public class CodeWhispererService {
     }
 
     public ConversationHistory getConversationHistory(String sessionId) {
-        return conversationHistoryService.getConversationBySessionId(sessionId)
-                .orElse(null);
+        if (conversationHistoryService != null) {
+            return conversationHistoryService.getConversationBySessionId(sessionId)
+                    .orElse(null);
+        }
+        return null;
     }
 
     public boolean isServiceConfigured() {

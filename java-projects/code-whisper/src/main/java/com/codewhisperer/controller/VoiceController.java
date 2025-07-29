@@ -23,25 +23,147 @@ public class VoiceController {
     private CodeWhispererService codeWhispererService;
 
     @PostMapping("/process")
-    public CompletableFuture<ResponseEntity<CodeResponse>> processVoiceRequest(@Valid @RequestBody VoiceRequest request) {
+    public CompletableFuture<ResponseEntity<CodeResponse>> processVoiceRequest(@RequestBody VoiceRequest request) {
         log.info("Received voice request for project: {}", request.getProjectPath());
         
-        return codeWhispererService.processVoiceRequest(request)
-                .thenApply(response -> {
-                    log.info("Voice request processed successfully for session: {}", response.getSessionId());
-                    return ResponseEntity.ok(response);
-                })
-                .exceptionally(throwable -> {
-                    log.error("Error processing voice request", throwable);
-                    return ResponseEntity.internalServerError()
-                            .body(CodeResponse.builder()
-                                    .generatedCode("// Error occurred")
-                                    .explanation("Failed to process voice request: " + throwable.getMessage())
-                                    .sessionId(request.getSessionId())
-                                    .timestamp(System.currentTimeMillis())
-                                    .type(CodeResponse.ResponseType.CODE_GENERATION)
-                                    .build());
-                });
+        try {
+            if (codeWhispererService == null) {
+                log.error("CodeWhispererService is not injected");
+                return CompletableFuture.completedFuture(
+                    ResponseEntity.internalServerError()
+                        .body(CodeResponse.builder()
+                            .generatedCode("// Service not available")
+                            .explanation("CodeWhispererService is not available")
+                            .sessionId(request.getSessionId())
+                            .timestamp(System.currentTimeMillis())
+                            .type(CodeResponse.ResponseType.CODE_GENERATION)
+                            .build())
+                );
+            }
+            
+            return codeWhispererService.processVoiceRequest(request)
+                    .thenApply(response -> {
+                        log.info("Voice request processed successfully for session: {}", response.getSessionId());
+                        return ResponseEntity.ok(response);
+                    })
+                    .exceptionally(throwable -> {
+                        log.error("Error processing voice request", throwable);
+                        return ResponseEntity.internalServerError()
+                                .body(CodeResponse.builder()
+                                        .generatedCode("// Error occurred")
+                                        .explanation("Failed to process voice request: " + throwable.getMessage())
+                                        .sessionId(request.getSessionId())
+                                        .timestamp(System.currentTimeMillis())
+                                        .type(CodeResponse.ResponseType.CODE_GENERATION)
+                                        .build());
+                    });
+        } catch (Exception e) {
+            log.error("Unexpected error in processVoiceRequest", e);
+            return CompletableFuture.completedFuture(
+                ResponseEntity.internalServerError()
+                    .body(CodeResponse.builder()
+                        .generatedCode("// Unexpected error")
+                        .explanation("Unexpected error: " + e.getMessage())
+                        .sessionId(request.getSessionId())
+                        .timestamp(System.currentTimeMillis())
+                        .type(CodeResponse.ResponseType.CODE_GENERATION)
+                        .build())
+            );
+        }
+    }
+
+    @PostMapping("/process-simple")
+    public ResponseEntity<CodeResponse> processVoiceRequestSimple(@RequestBody VoiceRequest request) {
+        log.info("Received simple voice request for project: {}", request.getProjectPath());
+        
+        try {
+            if (codeWhispererService == null) {
+                log.error("CodeWhispererService is not injected");
+                return ResponseEntity.internalServerError()
+                    .body(CodeResponse.builder()
+                        .generatedCode("// Service not available")
+                        .explanation("CodeWhispererService is not available")
+                        .sessionId(request.getSessionId())
+                        .timestamp(System.currentTimeMillis())
+                        .type(CodeResponse.ResponseType.CODE_GENERATION)
+                        .build());
+            }
+            
+            // Create a simple mock response for now
+            CodeResponse mockResponse = CodeResponse.builder()
+                .generatedCode("// Generated code from voice request")
+                .explanation("This is a mock response from the voice processing service")
+                .filePath("src/main/java/com/example/VoiceController.java")
+                .language("java")
+                .sessionId(request.getSessionId())
+                .timestamp(System.currentTimeMillis())
+                .type(CodeResponse.ResponseType.CODE_GENERATION)
+                .build();
+            
+            log.info("Simple voice request processed successfully for session: {}", request.getSessionId());
+            return ResponseEntity.ok(mockResponse);
+            
+        } catch (Exception e) {
+            log.error("Unexpected error in processVoiceRequestSimple", e);
+            return ResponseEntity.internalServerError()
+                .body(CodeResponse.builder()
+                    .generatedCode("// Unexpected error")
+                    .explanation("Unexpected error: " + e.getMessage())
+                    .sessionId(request.getSessionId())
+                    .timestamp(System.currentTimeMillis())
+                    .type(CodeResponse.ResponseType.CODE_GENERATION)
+                    .build());
+        }
+    }
+
+    @PostMapping("/test-process")
+    public ResponseEntity<CodeResponse> testProcessVoiceRequest(@RequestBody VoiceRequest request) {
+        log.info("Test process endpoint called with project: {}", request.getProjectPath());
+        
+        try {
+            if (codeWhispererService == null) {
+                log.error("CodeWhispererService is not injected");
+                return ResponseEntity.internalServerError()
+                    .body(CodeResponse.builder()
+                        .generatedCode("// Service not available")
+                        .explanation("CodeWhispererService is not available")
+                        .sessionId(request.getSessionId())
+                        .timestamp(System.currentTimeMillis())
+                        .type(CodeResponse.ResponseType.CODE_GENERATION)
+                        .build());
+            }
+            
+            // Create a simple mock response for testing
+            CodeResponse mockResponse = CodeResponse.builder()
+                .generatedCode("// Test code generation")
+                .explanation("This is a test response from the voice processing service")
+                .filePath("src/main/java/com/example/TestController.java")
+                .language("java")
+                .sessionId(request.getSessionId())
+                .timestamp(System.currentTimeMillis())
+                .type(CodeResponse.ResponseType.CODE_GENERATION)
+                .build();
+            
+            log.info("Test process completed successfully");
+            return ResponseEntity.ok(mockResponse);
+            
+        } catch (Exception e) {
+            log.error("Unexpected error in testProcessVoiceRequest", e);
+            return ResponseEntity.internalServerError()
+                .body(CodeResponse.builder()
+                    .generatedCode("// Unexpected error")
+                    .explanation("Unexpected error: " + e.getMessage())
+                    .sessionId(request.getSessionId())
+                    .timestamp(System.currentTimeMillis())
+                    .type(CodeResponse.ResponseType.CODE_GENERATION)
+                    .build());
+        }
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        log.info("Test endpoint called");
+        return ResponseEntity.ok("Test endpoint working! CodeWhispererService: " + (codeWhispererService != null));
     }
 
     @GetMapping("/project/{projectPath}")
