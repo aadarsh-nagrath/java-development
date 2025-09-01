@@ -47,15 +47,29 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: Framework for building production-ready applications
 - **Why**: Auto-configuration, embedded servers, production-ready features
 - **How**: Using Spring Boot 3 with Java 21
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: All services will be Spring Boot applications
+- **Learning Status**: ✅ Completed
+- **Implementation**: Auth-service implemented with Spring Boot 3, Java 21, and Spring Security
+- **Key Learnings**: 
+  - Spring Boot auto-configuration for databases, security, and monitoring
+  - Application properties and profiles for different environments
+  - Actuator endpoints for health checks and metrics
+  - Maven dependency management and build lifecycle
 
 ### Spring Cloud
 - **What**: Tools for building common distributed system patterns
 - **Why**: Service discovery, configuration management, circuit breakers
 - **How**: Netflix Eureka, Spring Cloud Config, Resilience4J
-- **Learning Status**: ⏳ Pending
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented in API Gateway with Spring Cloud Gateway and Eureka, and Config Server with Spring Cloud Config
+- **Key Learnings**:
+  - Spring Cloud Gateway for API routing and filtering
+  - Service discovery with Eureka client
+  - Circuit breaker patterns with Resilience4j
+  - Rate limiting with Redis
+  - Reactive programming with WebFlux
+  - Spring Cloud Config Server for centralized configuration
+  - Git-based configuration management
+  - Environment-specific configuration profiles
 
 ### Spring WebFlux
 - **What**: Reactive web framework for non-blocking applications
@@ -68,15 +82,41 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: Framework for authentication and authorization
 - **Why**: Secure applications, protect resources
 - **How**: JWT tokens, OAuth2, role-based access control
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented in auth-service with JWT authentication
+- **Key Learnings**:
+  - JWT token generation and validation
+  - Custom UserDetailsService implementation
+  - Security filter chains and authentication entry points
+  - Role-based authorization with @PreAuthorize
+  - Password encoding with BCrypt
+  - CORS configuration for cross-origin requests
 
 ### Spring Data
 - **What**: Data access abstraction for various databases
 - **Why**: Consistent API across different database types
 - **How**: JPA for PostgreSQL, MongoDB, Neo4j, Elasticsearch
-- **Learning Status**: ⏳ Pending
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented in user-service with JPA repositories
+- **Key Learnings**:
+  - Repository pattern with Spring Data JPA
+  - Custom query methods and @Query annotations
+  - Pagination and sorting support
+  - Relationship mapping (One-to-Many, Many-to-One)
+  - Index optimization for search queries
+
+### Spring GraphQL
+- **What**: GraphQL support for Spring Boot
+- **Why**: Flexible API queries, reduced over-fetching
+- **How**: Using Spring GraphQL starter
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented in user-service with GraphQL schema and resolvers
+- **Key Learnings**:
+  - GraphQL schema definition (.graphqls files)
+  - Type definitions and input types
+  - Query and mutation operations
+  - Enum types and scalar types
+  - Integration with Spring Boot applications
 
 ## 🗄️ Database Technologies
 
@@ -91,8 +131,14 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: Relational database for structured data
 - **Why**: ACID compliance, complex queries, relationships
 - **How**: Using for users, orders, authentication data
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: Will use for auth-service and user-service
+- **Learning Status**: ✅ Completed
+- **Implementation**: Used in auth-service for user management and authentication
+- **Key Learnings**:
+  - Database schema design with UUID primary keys
+  - JPA entity relationships (One-to-Many, Many-to-Many)
+  - Repository pattern with Spring Data JPA
+  - Database initialization scripts with sample data
+  - Connection pooling and transaction management
 
 ### MongoDB
 - **What**: NoSQL document database
@@ -119,8 +165,14 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: In-memory data structure store
 - **Why**: Caching, session storage, real-time data
 - **How**: Using for caching, rate limiting, session management
-- **Learning Status**: ⏳ Pending
-- **Implementation**: Will implement in Phase 4
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented in API Gateway for rate limiting and caching
+- **Key Learnings**:
+  - Redis integration with Spring Boot
+  - Rate limiting implementation with Redis
+  - Reactive Redis operations
+  - Connection pooling and configuration
+  - Key-based rate limiting strategies
 
 ## 📡 Messaging & Communication
 
@@ -165,8 +217,14 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: Stateless authentication tokens
 - **Why**: Scalability, stateless authentication
 - **How**: Using for API authentication, session management
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented in auth-service with access and refresh tokens
+- **Key Learnings**:
+  - JWT token structure and claims
+  - Access token vs refresh token patterns
+  - Token validation and expiration handling
+  - Secure token storage and refresh mechanisms
+  - JWT library usage (jjwt) with HMAC-SHA512 signing
 
 ### OAuth2
 - **What**: Authorization framework
@@ -232,15 +290,27 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: Containerization platform
 - **Why**: Consistent environments, isolation, portability
 - **How**: Using for service containers, development environment
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented Docker Compose for development environment and Dockerfile for auth-service
+- **Key Learnings**:
+  - Multi-stage Docker builds for optimized images
+  - Docker Compose for orchestrating multiple services
+  - Health checks and service dependencies
+  - Environment-specific configurations
+  - Volume management for persistent data
 
 ### Docker Compose
 - **What**: Multi-container Docker applications
 - **Why**: Local development, service orchestration
 - **How**: Using for development environment setup
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented comprehensive Docker Compose setup with all infrastructure services
+- **Key Learnings**:
+  - Service orchestration and networking
+  - Health checks and dependency management
+  - Environment variables and configuration
+  - Volume mounts for data persistence
+  - Service discovery and communication
 
 ### Kubernetes
 - **What**: Container orchestration platform
@@ -292,8 +362,14 @@ This document tracks all the concepts, technologies, and architectural patterns 
 - **What**: Build automation tool
 - **Why**: Dependency management, build lifecycle
 - **How**: Using for project building, dependency management
-- **Learning Status**: 🔄 In Progress
-- **Implementation**: Will implement in Phase 1
+- **Learning Status**: ✅ Completed
+- **Implementation**: Implemented parent POM with dependency management and service-specific POMs
+- **Key Learnings**:
+  - Parent-child POM relationships
+  - Dependency management and version control
+  - Build profiles for different environments
+  - Plugin configuration and lifecycle management
+  - Multi-module project structure
 
 ## 📚 Learning Resources
 
@@ -317,10 +393,10 @@ This document tracks all the concepts, technologies, and architectural patterns 
 ## 🎯 Learning Goals by Phase
 
 ### Phase 1 Goals
-- [ ] Understand Spring Boot 3 fundamentals
-- [ ] Learn JWT authentication implementation
-- [ ] Master basic microservice communication
-- [ ] Understand Docker containerization
+- [x] Understand Spring Boot 3 fundamentals
+- [x] Learn JWT authentication implementation
+- [x] Master basic microservice communication
+- [x] Understand Docker containerization
 
 ### Phase 2 Goals
 - [ ] Learn event-driven architecture
@@ -364,4 +440,4 @@ This document tracks all the concepts, technologies, and architectural patterns 
 
 **Last Updated**: Phase 1 - Foundation & Core Services
 **Next Phase**: Phase 2 - Messaging Infrastructure
-**Overall Learning Progress**: 10% Complete
+**Overall Learning Progress**: 60% Complete

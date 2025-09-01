@@ -1,0 +1,165 @@
+spring:
+  application:
+    name: api-gateway
+  
+  profiles:
+    active: dev
+  
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      
+      routes:
+        # Auth Service Routes
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+            - name: RateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+            - name: CircuitBreaker
+              args:
+                name: auth-service-circuit-breaker
+                fallbackUri: forward:/fallback/auth
+        
+        # User Service Routes
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
+          filters:
+            - StripPrefix=1
+            - name: RateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+            - name: CircuitBreaker
+              args:
+                name: user-service-circuit-breaker
+                fallbackUri: forward:/fallback/user
+        
+        # Health Check Routes (Public)
+        - id: health-check
+          uri: http://localhost:8080
+          predicates:
+            - Path=/health/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: health-check-circuit-breaker
+                fallbackUri: forward:/fallback/health
+        
+        # API Documentation Routes
+        - id: api-docs
+          uri: http://localhost:8080
+          predicates:
+            - Path=/docs/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: api-docs-circuit-breaker
+                fallbackUri: forward:/fallback/docs
+    
+    # Circuit Breaker Configuration
+    circuitbreaker:
+      resilience4j:
+        instances:
+          auth-service-circuit-breaker:
+            sliding-window-size: 10
+            minimum-number-of-calls: 5
+            failure-rate-threshold: 50
+            wait-duration-in-open-state: 30s
+          user-service-circuit-breaker:
+            sliding-window-size: 10
+            minimum-number-of-calls: 5
+            failure-rate-threshold: 50
+            wait-duration-in-open-state: 30s
+  
+  # Redis Configuration for Rate Limiting
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  
+  # Security Configuration
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your-secret-key-here-make-it-long-and-secure-in-production}
+      expiration: 86400000  # 24 hours in milliseconds
+  
+  # Cloud Configuration
+  cloud:
+    discovery:
+      enabled: true
+      service-id: ${spring.application.name}
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,gateway
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Rate Limiting Configuration
+rate-limiter:
+  default:
+    replenish-rate: 10
+    burst-capacity: 20
+  auth:
+    replenish-rate: 5
+    burst-capacity: 10
+  user:
+    replenish-rate: 20
+    burst-capacity: 40
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+    health-check-url-path: /actuator/health
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+    com.enterpriseshop.gateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# CORS Configuration
+cors:
+  allowed-origins: "*"
+  allowed-methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600

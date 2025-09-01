@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: config-server
+  
+  profiles:
+    active: native,git
+  
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/your-org/enterpriseshop-config.git
+          default-label: main
+          search-paths: config
+          clone-on-start: true
+          force-pull: true
+          timeout: 10
+        native:
+          search-locations: classpath:/config
+        health:
+          repositories:
+            config:
+              label: main
+              name: config
+              profiles: default
+              timeout: 5
+  
+  # Cloud Configuration
+  cloud:
+    discovery:
+      enabled: true
+      service-id: ${spring.application.name}
+
+server:
+  port: 8888
+  servlet:
+    context-path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,configprops,env
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+    health-check-url-path: /actuator/health
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
+    org.springframework.cloud.config.server: DEBUG
+    com.enterpriseshop.config: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Config Server specific properties
+config:
+  server:
+    git:
+      repos:
+        enterpriseshop:
+          uri: https://github.com/your-org/enterpriseshop-config.git
+          default-label: main
+          search-paths: config
+          clone-on-start: true
+          force-pull: true
+          timeout: 10
+          deleteUntrackedBranches: true
+          deleteUntrackedFiles: true
+          refreshRate: 0
+          basedir: /tmp/config-repo

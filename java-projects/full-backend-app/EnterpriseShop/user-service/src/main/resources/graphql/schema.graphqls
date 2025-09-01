@@ -1,0 +1,191 @@
+# GraphQL Schema for User Service
+
+type User {
+    id: ID!
+    authUserId: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    avatarUrl: String
+    bio: String
+    dateOfBirth: DateTime
+    gender: Gender
+    isActive: Boolean!
+    isVerified: Boolean!
+    lastLoginAt: DateTime
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    addresses: [Address!]
+    preferences: [UserPreference!]
+}
+
+type Address {
+    id: ID!
+    userId: ID!
+    addressType: AddressType!
+    streetAddress: String!
+    streetAddress2: String
+    city: String!
+    stateProvince: String!
+    postalCode: String!
+    country: String!
+    label: String
+    isDefault: Boolean!
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    fullAddress: String!
+}
+
+type UserPreference {
+    id: ID!
+    userId: ID!
+    category: String!
+    preferenceKey: String!
+    preferenceValue: String
+    description: String
+    isActive: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    fullKey: String!
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+    PREFER_NOT_TO_SAY
+}
+
+enum AddressType {
+    SHIPPING
+    BILLING
+    BOTH
+}
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+input UserInput {
+    authUserId: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phone: String
+    avatarUrl: String
+    bio: String
+    dateOfBirth: DateTime
+    gender: Gender
+}
+
+input UserUpdateInput {
+    firstName: String
+    lastName: String
+    email: String
+    phone: String
+    avatarUrl: String
+    bio: String
+    dateOfBirth: DateTime
+    gender: Gender
+}
+
+input AddressInput {
+    addressType: AddressType!
+    streetAddress: String!
+    streetAddress2: String
+    city: String!
+    stateProvince: String!
+    postalCode: String!
+    country: String!
+    label: String
+    isDefault: Boolean
+}
+
+input UserPreferenceInput {
+    category: String!
+    preferenceKey: String!
+    preferenceValue: String
+    description: String
+}
+
+input UserSearchInput {
+    name: String
+    city: String
+    country: String
+    isActive: Boolean
+    isVerified: Boolean
+}
+
+type UserPage {
+    content: [User!]!
+    totalElements: Int!
+    totalPages: Int!
+    size: Int!
+    number: Int!
+    first: Boolean!
+    last: Boolean!
+}
+
+type UserStatistics {
+    totalUsers: Int!
+    activeUsers: Int!
+    verifiedUsers: Int!
+    unverifiedUsers: Int!
+}
+
+type Query {
+    # User queries
+    user(id: ID!): User
+    userByAuthId(authUserId: ID!): User
+    userByEmail(email: String!): User
+    users(
+        page: Int = 0
+        size: Int = 20
+        sortBy: String = "firstName"
+        sortDirection: SortDirection = ASC
+    ): UserPage!
+    
+    activeUsers(
+        page: Int = 0
+        size: Int = 20
+    ): UserPage!
+    
+    # Search queries
+    searchUsersByName(name: String!): [User!]!
+    searchUsersByCity(city: String!): [User!]!
+    searchUsersByCountry(country: String!): [User!]!
+    searchUsers(input: UserSearchInput!): [User!]!
+    
+    # Statistics
+    userStatistics: UserStatistics!
+    
+    # Health check
+    health: String!
+}
+
+type Mutation {
+    # User mutations
+    createUser(input: UserInput!): User!
+    updateUser(id: ID!, input: UserUpdateInput!): User!
+    updateUserVerification(id: ID!, isVerified: Boolean!): User!
+    updateUserStatus(id: ID!, isActive: Boolean!): User!
+    updateLastLogin(id: ID!): Boolean!
+    deleteUser(id: ID!): Boolean!
+    
+    # Address mutations
+    addAddress(userId: ID!, input: AddressInput!): Address!
+    updateAddress(id: ID!, input: AddressInput!): Address!
+    deleteAddress(id: ID!): Boolean!
+    setDefaultAddress(userId: ID!, addressId: ID!): Address!
+    
+    # Preference mutations
+    addPreference(userId: ID!, input: UserPreferenceInput!): UserPreference!
+    updatePreference(id: ID!, input: UserPreferenceInput!): UserPreference!
+    deletePreference(id: ID!): Boolean!
+    updatePreferenceValue(userId: ID!, category: String!, key: String!, value: String!): UserPreference!
+}
+
+scalar DateTime
