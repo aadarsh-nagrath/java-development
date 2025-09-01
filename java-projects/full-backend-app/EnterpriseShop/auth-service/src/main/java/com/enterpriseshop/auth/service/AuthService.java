@@ -12,6 +12,8 @@ import com.enterpriseshop.auth.repository.RefreshTokenRepository;
 import com.enterpriseshop.auth.repository.RoleRepository;
 import com.enterpriseshop.auth.repository.UserRepository;
 import com.enterpriseshop.auth.security.JwtTokenProvider;
+import com.enterpriseshop.auth.event.UserLoginEvent;
+import com.enterpriseshop.auth.event.UserRegisteredEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,9 @@ public class AuthService {
 
     @Autowired
     private JwtTokenProvider tokenProvider;
+    
+    @Autowired
+    private EventPublisherService eventPublisher;
 
     /**
      * Authenticate user and return JWT tokens.
@@ -86,6 +91,27 @@ public class AuthService {
         Set<String> roles = user.getRoles().stream()
                 .map(Role::getName)
                 .collect(java.util.stream.Collectors.toSet());
+
+        // Publish successful login event
+        try {
+            UUID correlationId = UUID.randomUUID();
+            eventPublisher.publishUserLogin(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    "127.0.0.1", // TODO: Get actual IP from request context
+                    "Unknown", // TODO: Get actual user agent from request context
+                    "PASSWORD",
+                    true,
+                    null,
+                    correlationId
+            );
+            logger.info("Published successful login event for user: {}", user.getId());
+        } catch (Exception e) {
+            logger.error("Failed to publish login event for user {}: {}", 
+                       user.getId(), e.getMessage());
+            // Don't fail login if event publishing fails
+        }
 
         return new AuthResponse(
                 jwt,
@@ -154,6 +180,25 @@ public class AuthService {
         Set<String> roleNames = savedUser.getRoles().stream()
                 .map(Role::getName)
                 .collect(java.util.stream.Collectors.toSet());
+
+        // Publish user registration event
+        try {
+            UUID correlationId = UUID.randomUUID();
+            eventPublisher.publishUserRegistered(
+                    savedUser.getId(),
+                    savedUser.getUsername(),
+                    savedUser.getEmail(),
+                    savedUser.getFirstName(),
+                    savedUser.getLastName(),
+                    null, // phoneNumber not available in registration
+                    correlationId
+            );
+            logger.info("Published user registration event for user: {}", savedUser.getId());
+        } catch (Exception e) {
+            logger.error("Failed to publish user registration event for user {}: {}", 
+                       savedUser.getId(), e.getMessage());
+            // Don't fail registration if event publishing fails
+        }
 
         return new AuthResponse(
                 jwt,

@@ -99,6 +99,13 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Messaging Common Module -->
+        <dependency>
+            <groupId>com.enterpriseshop</groupId>
+            <artifactId>messaging-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

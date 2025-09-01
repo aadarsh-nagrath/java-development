@@ -72,6 +72,8 @@
         <module>support-service</module>
         <module>api-gateway</module>
         <module>config-server</module>
+        <module>security-common</module>
+        <module>messaging-common</module>
     </modules>
 
     <dependencyManagement>
